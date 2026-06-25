@@ -1,0 +1,26 @@
+# Go build artifacts
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+
+# Local config with secrets (broker creds, paths)
+config.yaml
+/etc/
+*.local.yaml
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Probe dumps / scratch
+*.dump
+/scratch/
+deploy/metrics/.env
+*.env
+
+# Internal-only — kept on disk, never published (design notes, our encrypted secret)
+docs/
+secrets/

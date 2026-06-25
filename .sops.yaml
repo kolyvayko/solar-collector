@@ -1,0 +1,4 @@
+creation_rules:
+  - path_regex: secrets/.*\.ya?ml$
+    # Replace with your own age public recipient (generate one: age-keygen -o key.txt).
+    age: REPLACE_WITH_YOUR_AGE_PUBLIC_RECIPIENT

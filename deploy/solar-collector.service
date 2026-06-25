@@ -1,0 +1,15 @@
+[Unit]
+Description=solar-collector — Growatt SPF telemetry to MQTT
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=solar
+SupplementaryGroups=dialout
+ExecStart=/usr/local/bin/solar-collector run --config /etc/solar-collector/config.yaml --metrics-addr :9099
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

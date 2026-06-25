@@ -1,0 +1,9 @@
+[Unit]
+Description=Backup VictoriaMetrics data to a remote host
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=solar
+ExecStart=/usr/local/bin/solar-metrics-backup.sh

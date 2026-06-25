@@ -1,0 +1,10 @@
+# /etc/solar-collector/config.yaml
+broker: "mqtt-host:1883"          # your MQTT broker (anonymous)
+topic_prefix: "solar_assistant"    # SA-compatible drop-in
+status_topic: "solar_collector/status"
+poll_interval: "10s"
+command_spacing: "850ms"
+read_timeout: "1s"
+inverters:
+  - "/dev/solar-inv1"              # udev symlink (see 99-solar-collector.rules)
+  # - "/dev/solar-inv2"            # add when the second inverter is connected

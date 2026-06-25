@@ -1,0 +1,6 @@
+# Stable symlink per inverter by Exar chip serial (survives USB port/cable changes).
+# ID_PATH (physical socket) was rejected: moving a cable to another USB port broke
+# the symlink. The Exar XR21B1411 serial is unique per inverter and follows the unit.
+# Capture a serial with: udevadm info -q property -n /dev/ttyUSBx | grep ID_SERIAL_SHORT
+SUBSYSTEM=="tty", ATTRS{idVendor}=="04e2", ATTRS{idProduct}=="1411", ENV{ID_SERIAL_SHORT}=="REPLACE_WITH_INV1_SERIAL", SYMLINK+="solar-inv1"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="04e2", ATTRS{idProduct}=="1411", ENV{ID_SERIAL_SHORT}=="REPLACE_WITH_INV2_SERIAL", SYMLINK+="solar-inv2"

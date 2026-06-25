@@ -1,0 +1,84 @@
+{
+  "uid": "solar-overview",
+  "title": "Solar Overview",
+  "timezone": "Europe/Kyiv",
+  "editable": true,
+  "schemaVersion": 39,
+  "time": { "from": "now-24h", "to": "now" },
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Power",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "watt" }, "overrides": [] },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "refId": "A", "expr": "solar_pv_power_watts", "legendFormat": "PV" },
+        { "refId": "B", "expr": "solar_load_power_watts", "legendFormat": "Load" },
+        { "refId": "C", "expr": "solar_grid_power_watts", "legendFormat": "Grid" },
+        { "refId": "D", "expr": "solar_battery_power_watts", "legendFormat": "Battery" }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Battery SoC",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 9 },
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 }, "overrides": [] },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [ { "refId": "A", "expr": "solar_battery_soc_percent" } ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Battery voltage",
+      "gridPos": { "h": 6, "w": 9, "x": 6, "y": 9 },
+      "fieldConfig": { "defaults": { "unit": "volt" }, "overrides": [] },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [ { "refId": "A", "expr": "solar_battery_voltage_volts", "legendFormat": "Battery V" } ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Per-inverter PV power",
+      "gridPos": { "h": 6, "w": 9, "x": 15, "y": 9 },
+      "fieldConfig": { "defaults": { "unit": "watt" }, "overrides": [] },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [ { "refId": "A", "expr": "solar_inverter_pv_power_watts", "legendFormat": "inverter {{inverter}}" } ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Per-inverter temperature",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 15 },
+      "fieldConfig": { "defaults": { "unit": "celsius" }, "overrides": [] },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [ { "refId": "A", "expr": "solar_inverter_temperature_celsius", "legendFormat": "inverter {{inverter}}" } ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Inverter up",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 15 },
+      "fieldConfig": { "defaults": { "unit": "short", "min": 0, "max": 1 }, "overrides": [] },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [ { "refId": "A", "expr": "solar_inverter_up", "legendFormat": "inverter {{inverter}}" } ]
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Energy today (kWh)",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 21 },
+      "fieldConfig": { "defaults": { "unit": "kwatth", "decimals": 1 }, "overrides": [] },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "refId": "A", "expr": "integrate(solar_pv_power_watts[24h]) / 3600 / 1000", "legendFormat": "Solar PV" },
+        { "refId": "B", "expr": "integrate(solar_load_power_watts[24h]) / 3600 / 1000", "legendFormat": "Load" },
+        { "refId": "C", "expr": "integrate((solar_battery_power_watts > 0)[24h]) / 3600 / 1000", "legendFormat": "Battery charged" },
+        { "refId": "D", "expr": "integrate((-solar_battery_power_watts > 0)[24h]) / 3600 / 1000", "legendFormat": "Battery discharged" }
+      ]
+    }
+  ]
+}
