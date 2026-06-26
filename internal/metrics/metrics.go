@@ -83,6 +83,10 @@ func render(t aggregate.Totals, slots []SlotView, version string) []byte {
 		scalar(&b, "solar_grid_power_watts", "Total grid power (+import / -export).", fnum(t.GridW))
 
 		if anyOK(slots) {
+			scalar(&b, "solar_grid_voltage_volts", "AC-input voltage (0 ⇒ blackout).", fnum(t.GridV))
+			scalar(&b, "solar_grid_frequency_hertz", "AC-input frequency (Hz).", fnum(t.GridHz))
+			scalar(&b, "solar_bus_voltage_volts", "DC bus voltage (volts).", fnum(t.BusV))
+
 			gaugeHeader(&b, "solar_inverter_pv_power_watts", "Per-inverter PV power (watts).")
 			for _, s := range slots {
 				if s.State == "ok" {
@@ -93,6 +97,18 @@ func render(t aggregate.Totals, slots []SlotView, version string) []byte {
 			for _, s := range slots {
 				if s.State == "ok" {
 					b.WriteString(`solar_inverter_temperature_celsius{inverter="` + slotLabel(s) + `"} ` + fnum(s.Reading.TempC) + "\n")
+				}
+			}
+			gaugeHeader(&b, "solar_inverter_ac_output_voltage_volts", "Per-inverter AC output voltage (volts).")
+			for _, s := range slots {
+				if s.State == "ok" {
+					b.WriteString(`solar_inverter_ac_output_voltage_volts{inverter="` + slotLabel(s) + `"} ` + fnum(s.Reading.AcOutV) + "\n")
+				}
+			}
+			gaugeHeader(&b, "solar_inverter_load_percentage", "Per-inverter load percentage.")
+			for _, s := range slots {
+				if s.State == "ok" {
+					b.WriteString(`solar_inverter_load_percentage{inverter="` + slotLabel(s) + `"} ` + fnum(s.Reading.LoadPct) + "\n")
 				}
 			}
 			gaugeHeader(&b, "solar_inverter_status", "Per-inverter work-mode enum.")

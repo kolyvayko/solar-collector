@@ -18,10 +18,11 @@ func runProbe(args []string) error {
 	case "read":
 		fs := flag.NewFlagSet("read", flag.ContinueOnError)
 		port := fs.String("port", "", "serial device, e.g. /dev/solar-inv1")
+		raw := fs.Bool("raw", false, "dump all input registers")
 		if err := fs.Parse(rest); err != nil {
 			return err
 		}
-		return probe.RunRead(*port)
+		return probe.RunRead(*port, *raw)
 	case "classify":
 		fs := flag.NewFlagSet("classify", flag.ContinueOnError)
 		p1 := fs.String("port1", "", "inverter 1 device")

@@ -100,3 +100,20 @@ func TestRender_OnlineButNoOKSlot_NoDanglingHeaders(t *testing.T) {
 	// scalar totals still present (gated only on InvertersOnline>0):
 	mustContain(t, out, "solar_battery_soc_percent 50")
 }
+
+func TestRender_TelemetryGauges(t *testing.T) {
+	tot := aggregate.Totals{InvertersOnline: 1, SoC: 50, GridV: 228.3, GridHz: 49.94, BusV: 422.2}
+	slots := []SlotView{{Index: 0, State: "ok", Reading: inverter.Reading{AcOutV: 230.9, LoadPct: 20}}}
+	out := string(render(tot, slots, "test"))
+	for _, want := range []string{
+		"solar_grid_voltage_volts 228.3",
+		"solar_grid_frequency_hertz 49.94",
+		"solar_bus_voltage_volts 422.2",
+		`solar_inverter_ac_output_voltage_volts{inverter="1"} 230.9`,
+		`solar_inverter_load_percentage{inverter="1"} 20`,
+	} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("missing gauge %q in:\n%s", want, out)
+		}
+	}
+}

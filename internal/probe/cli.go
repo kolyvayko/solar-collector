@@ -34,7 +34,7 @@ func RunPorts() error {
 	return nil
 }
 
-func RunRead(dev string) error {
+func RunRead(dev string, raw bool) error {
 	c, closer, err := inverter.Open(dev, time.Second)
 	if err != nil {
 		return err
@@ -45,6 +45,12 @@ func RunRead(dev string) error {
 		return err
 	}
 	fmt.Print(FormatReading(r))
+	if raw {
+		fmt.Println("--- raw input registers ---")
+		for i, v := range r.Raw {
+			fmt.Printf("r%-3d = %5d  (0x%04x)\n", i, v, v)
+		}
+	}
 	return nil
 }
 

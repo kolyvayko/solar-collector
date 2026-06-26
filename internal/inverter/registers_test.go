@@ -81,3 +81,27 @@ func TestDecodeReading_ShortBlock(t *testing.T) {
 		t.Fatal("expected error on short block")
 	}
 }
+
+func TestDecodeReading_NewTelemetryFields(t *testing.T) {
+	regs := make([]uint16, blockQty)
+	regs[regGridV] = 2283   // 228.3 V at ×0.1
+	regs[regGridHz] = 4994  // 49.94 Hz at ×0.01
+	regs[regAcOutV] = 2309  // 230.9
+	regs[regBusV] = 4222    // 422.2
+	regs[regPv2V] = 1568    // 156.8
+	regs[regLoadPct] = 200  // ×0.1 ⇒ 20.0 %
+	regs[regBatChargeA] = 451 // ×0.1 ⇒ 45.1 A charge
+	r, err := DecodeReading(regs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !almost(r.GridV, 228.3) || !almost(r.GridHz, 49.94) || !almost(r.AcOutV, 230.9) || !almost(r.BusV, 422.2) {
+		t.Fatalf("got %+v", r)
+	}
+	if !almost(r.PV2V, 156.8) || !almost(r.LoadPct, 20) {
+		t.Fatalf("got %+v", r)
+	}
+	if !almost(r.BatteryA, 45.1) { // (charge 45.1 − discharge 0)
+		t.Fatalf("BatteryA=%v want 45.1", r.BatteryA)
+	}
+}
