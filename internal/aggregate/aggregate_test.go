@@ -89,6 +89,29 @@ func TestCompute_ClampNegativePV(t *testing.T) {
 	}
 }
 
+func TestCompute_PassThroughPowerFields(t *testing.T) {
+	rs := []IndexedReading{
+		{Index: 0, Reading: inverter.Reading{PV1W: 120, PV2W: 80, GridW: -50, LoadW: 300}},
+	}
+	tot := Compute(rs)
+	if len(tot.PerInverter) != 1 {
+		t.Fatalf("per-inverter count: %d", len(tot.PerInverter))
+	}
+	inv := tot.PerInverter[0]
+	if !almost(inv.PV1W, 120) {
+		t.Fatalf("PV1W=%v want 120", inv.PV1W)
+	}
+	if !almost(inv.PV2W, 80) {
+		t.Fatalf("PV2W=%v want 80", inv.PV2W)
+	}
+	if !almost(inv.GridW, -50) {
+		t.Fatalf("GridW=%v want -50", inv.GridW)
+	}
+	if !almost(inv.LoadW, 300) {
+		t.Fatalf("LoadW=%v want 300", inv.LoadW)
+	}
+}
+
 func TestCompute_TelemetryAggregation(t *testing.T) {
 	rs := []IndexedReading{
 		{Index: 0, Reading: inverter.Reading{GridV: 0, LoadVA: 100, BusV: 420, BatteryV: 53.0}},

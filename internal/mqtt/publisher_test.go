@@ -73,6 +73,69 @@ func TestPublishTotals_PerInverterTopicFollowsSlotIndex(t *testing.T) {
 	}
 }
 
+func TestPublishTotals_FullTelemetryTopics(t *testing.T) {
+	f := newFake()
+	p := New(f, "solar_assistant", "solar_collector/status")
+	p.PublishTotals(aggregate.Totals{
+		GridV: 228.3, BusV: 422.2, GridHz: 50.01,
+		BatteryVoltageV: 53.1, BatteryA: 12.5, LoadVA: 500,
+		PerInverter: []aggregate.InverterSummary{
+			{
+				Index: 1, GridV: 228.3, AcOutV: 230.9, GridHz: 49.94,
+				PV1V: 145.6, PV2V: 0, PV1A: 2.1, PV2A: 0,
+				PV1W: 305, PV2W: 0, GridW: -120, LoadW: 450,
+				LoadVA: 460, LoadPct: 22, BatteryV: 53.1, BatteryA: 5.2,
+				BatteryFromAcW: 0, BusV: 422.2,
+			},
+		},
+	})
+
+	// total topics
+	if got := f.msgs["solar_assistant/total/grid_voltage/state"]; got != "228.3" {
+		t.Fatalf("total grid_voltage: %q", got)
+	}
+	if got := f.msgs["solar_assistant/total/grid_frequency/state"]; got != "50.01" {
+		t.Fatalf("total grid_frequency: %q", got)
+	}
+	if got := f.msgs["solar_assistant/total/bus_voltage/state"]; got != "422.2" {
+		t.Fatalf("total bus_voltage: %q", got)
+	}
+	if got := f.msgs["solar_assistant/total/battery_voltage/state"]; got != "53.1" {
+		t.Fatalf("total battery_voltage: %q", got)
+	}
+	if got := f.msgs["solar_assistant/total/battery_current/state"]; got != "12.5" {
+		t.Fatalf("total battery_current: %q", got)
+	}
+	if got := f.msgs["solar_assistant/total/load_apparent_power/state"]; got != "500" {
+		t.Fatalf("total load_apparent_power: %q", got)
+	}
+
+	// per-inverter topics (slot Index=1 → inverter_2)
+	if got := f.msgs["solar_assistant/inverter_2/ac_output_voltage/state"]; got != "230.9" {
+		t.Fatalf("inv2 ac_output_voltage: %q", got)
+	}
+	if got := f.msgs["solar_assistant/inverter_2/grid_voltage/state"]; got != "228.3" {
+		t.Fatalf("inv2 grid_voltage: %q", got)
+	}
+	if got := f.msgs["solar_assistant/inverter_2/load_power/state"]; got != "450" {
+		t.Fatalf("inv2 load_power: %q", got)
+	}
+	if got := f.msgs["solar_assistant/inverter_2/pv_power_1/state"]; got != "305" {
+		t.Fatalf("inv2 pv_power_1: %q", got)
+	}
+	if got := f.msgs["solar_assistant/inverter_2/grid_frequency/state"]; got != "49.94" {
+		t.Fatalf("inv2 grid_frequency: %q", got)
+	}
+
+	// retained check
+	if !f.ret["solar_assistant/inverter_2/grid_voltage/state"] {
+		t.Fatal("grid_voltage must be retained")
+	}
+	if !f.ret["solar_assistant/total/grid_voltage/state"] {
+		t.Fatal("total grid_voltage must be retained")
+	}
+}
+
 func TestSetOnlineOffline(t *testing.T) {
 	f := newFake()
 	p := New(f, "solar_assistant", "solar_collector/status")

@@ -25,6 +25,12 @@ type InverterSummary struct {
 	BatteryA       float64 // A  SA sign: +charge / −discharge
 	BatteryFromAcW float64 // W  AC→battery charge
 	BusV           float64 // V  DC bus
+
+	// Pass-through power fields (Task 4)
+	PV1W  float64 // W  string 1 power
+	PV2W  float64 // W  string 2 power
+	GridW float64 // W  grid power (SA sign)
+	LoadW float64 // W  load power
 }
 
 // IndexedReading pairs an OK reading with its config slot index so per-inverter
@@ -102,6 +108,10 @@ func Compute(readings []IndexedReading) Totals {
 			BatteryA:       r.BatteryA,
 			BatteryFromAcW: r.BatteryFromAcW,
 			BusV:           r.BusV,
+			PV1W:           r.PV1W,
+			PV2W:           r.PV2W,
+			GridW:          r.GridW,
+			LoadW:          r.LoadW,
 		})
 	}
 	t.BatteryPowerW = -rawBattery    // negate raw Growatt sign -> SA convention
