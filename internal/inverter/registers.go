@@ -58,6 +58,21 @@ type Reading struct {
 	TempC         float64
 	Status        uint16 // work-mode enum; 0 = standby/off
 	Raw           []uint16
+
+	// Extended per-inverter telemetry (Task 2, SA parity)
+	PV1V           float64 // V  ×0.1
+	PV2V           float64 // V  ×0.1
+	PV1A           float64 // A  ×0.1
+	PV2A           float64 // A  ×0.1
+	GridV          float64 // V  AC-input ×0.1
+	GridHz         float64 // Hz AC-input ×0.01
+	AcOutV         float64 // V  inverter output ×0.1
+	AcOutHz        float64 // Hz inverter output ×0.01
+	LoadVA         float64 // VA ×0.1 (32-bit)
+	LoadPct        float64 // %  ×0.1
+	BatteryA       float64 // A  SA sign: +charge / −discharge
+	BatteryFromAcW float64 // W  AC→battery charge ×0.1 (32-bit)
+	BusV           float64 // V  DC bus ×0.1
 }
 
 func DecodeReading(regs []uint16) (Reading, error) {
@@ -75,5 +90,20 @@ func DecodeReading(regs []uint16) (Reading, error) {
 		TempC:         decodeU16(regs, 25, 0.1),
 		Status:        regs[0],
 		Raw:           append([]uint16(nil), regs[:blockQty]...),
+
+		// Extended per-inverter telemetry
+		PV1V:           decodeU16(regs, regPv1V, 0.1),
+		PV2V:           decodeU16(regs, regPv2V, 0.1),
+		PV1A:           decodeU16(regs, regPv1A, 0.1),
+		PV2A:           decodeU16(regs, regPv2A, 0.1),
+		GridV:          decodeU16(regs, regGridV, 0.1),
+		GridHz:         decodeU16(regs, regGridHz, 0.01),
+		AcOutV:         decodeU16(regs, regAcOutV, 0.1),
+		AcOutHz:        decodeU16(regs, regAcOutHz, 0.01),
+		LoadVA:         decodeS32(regs, regLoadVAHi, regLoadVALo, 0.1),
+		LoadPct:        decodeU16(regs, regLoadPct, 0.1),
+		BatteryFromAcW: decodeS32(regs, regBatFromAcHi, regBatFromAcLo, 0.1),
+		BusV:           decodeU16(regs, regBusV, 0.1),
+		BatteryA:       decodeU16(regs, regBatChargeA, 0.1) - decodeU16(regs, regBatDischargeA, 0.1),
 	}, nil
 }
