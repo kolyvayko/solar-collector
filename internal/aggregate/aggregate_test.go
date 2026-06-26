@@ -88,3 +88,20 @@ func TestCompute_ClampNegativePV(t *testing.T) {
 		t.Fatalf("clamp: pv=%v clamped=%v", tot.PVPowerW, tot.Clamped)
 	}
 }
+
+func TestCompute_TelemetryAggregation(t *testing.T) {
+	rs := []IndexedReading{
+		{Index: 0, Reading: inverter.Reading{GridV: 0, LoadVA: 100, BusV: 420, BatteryV: 53.0}},
+		{Index: 1, Reading: inverter.Reading{GridV: 228.3, LoadVA: 200, BusV: 421, BatteryV: 53.2}},
+	}
+	tot := Compute(rs)
+	if tot.GridV != 228.3 { // max, ignores the 0
+		t.Fatalf("GridV=%v want 228.3", tot.GridV)
+	}
+	if tot.LoadVA != 300 { // sum
+		t.Fatalf("LoadVA=%v want 300", tot.LoadVA)
+	}
+	if tot.BatteryVoltageV != 53.0 { // shared = first slot
+		t.Fatalf("BatteryVoltageV=%v want 53.0", tot.BatteryVoltageV)
+	}
+}
